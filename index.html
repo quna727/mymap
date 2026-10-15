@@ -20,13 +20,13 @@
     }
 
     header {
-      padding: 18px;
+      padding: 17px 20px;
       background: #2878e8;
       color: white;
     }
 
     header h1 {
-      margin: 0 0 6px;
+      margin: 0 0 5px;
       font-size: 22px;
     }
 
@@ -37,55 +37,47 @@
 
     .container {
       display: flex;
-      height: calc(100vh - 88px);
+      height: calc(100vh - 85px);
       min-height: 480px;
     }
 
     .sidebar {
-      width: 370px;
-      min-width: 300px;
+      width: 390px;
+      min-width: 310px;
       padding: 16px;
       overflow-y: auto;
       border-right: 1px solid #ddd;
+      background: #fff;
     }
 
-    select, input, button {
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    select {
       width: 100%;
       padding: 11px;
-      margin-bottom: 10px;
+      border: 1px solid #ccc;
       border-radius: 8px;
+      background: white;
       font-size: 14px;
     }
 
-    select, input {
-      border: 1px solid #ccc;
-      background: white;
-    }
-
-    button {
-      border: none;
-      background: #2878e8;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-
-    #status {
-      margin: 12px 0;
-      font-size: 13px;
+    .notice {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f2f6fc;
+      font-size: 12px;
       line-height: 1.6;
     }
 
-    .notice {
-      margin: 12px 0;
-      padding: 10px;
-      background: #f2f6fc;
-      border-radius: 8px;
-      font-size: 12px;
+    #status {
+      margin: 14px 0;
+      font-size: 13px;
       line-height: 1.6;
     }
 
@@ -94,45 +86,60 @@
       margin-bottom: 10px;
       border: 1px solid #ddd;
       border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .hospital:hover {
+      background: #f5f8ff;
     }
 
     .hospital h3 {
-      margin: 5px 0 8px;
+      margin: 8px 0;
       font-size: 15px;
+      line-height: 1.4;
     }
 
     .hospital p {
       margin: 5px 0;
+      color: #555;
       font-size: 12px;
       line-height: 1.5;
-      color: #555;
     }
 
     .tag {
       display: inline-block;
       padding: 4px 7px;
       border-radius: 5px;
-      background: #e4efff;
+      background: #e2edff;
       color: #205ca8;
       font-size: 11px;
     }
 
     .tag.pediatric {
-      background: #e5f6ec;
-      color: #187342;
+      background: #e3f6e9;
+      color: #176a3a;
     }
 
     .hospital a {
       display: inline-block;
-      margin-top: 8px;
-      font-size: 13px;
+      margin-top: 7px;
       color: #1769cc;
+      font-size: 12px;
     }
 
     #map {
       flex: 1;
       min-width: 0;
       height: 100%;
+    }
+
+    .empty {
+      padding: 16px;
+      background: #fafafa;
+      border-radius: 8px;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.7;
     }
 
     @media (max-width: 700px) {
@@ -142,14 +149,15 @@
       }
 
       #map {
-        height: 45vh;
-        min-height: 280px;
+        height: 42vh;
+        min-height: 270px;
         flex: none;
       }
 
       .sidebar {
         width: 100%;
         min-width: 0;
+        border-right: 0;
       }
     }
   </style>
@@ -158,50 +166,35 @@
 <body>
   <header>
     <h1>🌙 전국 달빛어린이병원 지도</h1>
-    <p>지역을 선택해 야간·휴일 소아 진료 병원을 찾아보세요.</p>
+    <p>지역을 선택하면 해당 지역의 병원 목록을 보여줍니다.</p>
   </header>
 
   <div class="container">
     <aside class="sidebar">
-      <label for="regionSelect">검색할 지역</label>
-
-      <select id="regionSelect">
-        <option value="서울특별시">서울특별시</option>
-        <option value="부산광역시">부산광역시</option>
-        <option value="대구광역시">대구광역시</option>
-        <option value="인천광역시">인천광역시</option>
-        <option value="광주광역시">광주광역시</option>
-        <option value="대전광역시">대전광역시</option>
-        <option value="울산광역시">울산광역시</option>
-        <option value="세종특별자치시">세종특별자치시</option>
-        <option value="경기도">경기도</option>
-        <option value="강원특별자치도">강원특별자치도</option>
-        <option value="충청북도">충청북도</option>
-        <option value="충청남도">충청남도</option>
-        <option value="전북특별자치도">전북특별자치도</option>
-        <option value="전라남도">전라남도</option>
-        <option value="경상북도">경상북도</option>
-        <option value="경상남도">경상남도</option>
-        <option value="제주특별자치도">제주특별자치도</option>
+      <label for="sidoSelect">1. 시·도</label>
+      <select id="sidoSelect" disabled>
+        <option>행정구역을 불러오는 중...</option>
       </select>
 
-      <label for="districtInput">세부 지역 (선택)</label>
-      <input
-        id="districtInput"
-        type="text"
-        placeholder="예: 강남구, 수원시, 해운대구"
-      >
+      <label for="sigunguSelect">2. 시·군·구</label>
+      <select id="sigunguSelect" disabled>
+        <option value="">시·도를 먼저 선택하세요</option>
+      </select>
 
-      <button id="searchButton">선택한 지역 병원 검색</button>
+      <label for="dongSelect">3. 읍·면·동</label>
+      <select id="dongSelect" disabled>
+        <option value="">시·군·구를 먼저 선택하세요</option>
+      </select>
 
       <div class="notice">
-        공식 달빛어린이병원과 주변 소아과 검색 결과를 보여줍니다.
-        진료시간은 카카오맵 검색 결과만으로 확정할 수 없으므로
-        병원에 직접 확인해 주세요.
+        <strong>병원 정보 안내</strong><br>
+        파란색은 달빛어린이병원 이름 검색 결과, 초록색은 주변 소아과 검색 결과입니다.
+        공식 지정 여부는 별도의 공식 명단 대조가 필요합니다.
+        진료시간을 확인할 수 없는 병원은 영업 중이라고 표시하지 않습니다.
       </div>
 
       <div id="status" role="status" aria-live="polite">
-        지역을 선택하고 검색 버튼을 눌러 주세요.
+        행정구역 데이터를 불러오고 있습니다.
       </div>
 
       <div id="results"></div>
@@ -211,188 +204,427 @@
   </div>
 
   <script>
-    // 지도와 장소 검색 객체
+    // 전국 행정구역 GeoJSON 데이터 주소
+    const ADMIN_DATA_URL =
+      "https://raw.githubusercontent.com/KnellBalm/kr-admin-geojson/main/";
+
+    // 행정구역 데이터
+    let sidoData = [];
+    let sigunguData = [];
+    let dongData = [];
+
+    // 지도 관련 객체
     let map;
     let places;
+    let geocoder;
     let markers = [];
     let infoWindows = [];
-    let isSearching = false;
+    let searchVersion = 0;
 
-    const regionSelect = document.getElementById("regionSelect");
-    const districtInput = document.getElementById("districtInput");
-    const searchButton = document.getElementById("searchButton");
+    const sidoSelect = document.getElementById("sidoSelect");
+    const sigunguSelect = document.getElementById("sigunguSelect");
+    const dongSelect = document.getElementById("dongSelect");
     const statusElement = document.getElementById("status");
     const resultsElement = document.getElementById("results");
 
-    // 기본 지도 위치: 서울
-    const defaultPosition = new kakao.maps.LatLng(
-      37.5665,
-      126.9780
-    );
-
-    // 지도 초기화
+    // 지도 초기화: 현재 위치는 요청하지 않습니다.
     function initializeMap() {
       map = new kakao.maps.Map(
         document.getElementById("map"),
         {
-          center: defaultPosition,
-          level: 8
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
+          level: 7
         }
       );
 
       places = new kakao.maps.services.Places();
+      geocoder = new kakao.maps.services.Geocoder();
 
-      // 페이지를 열자마자 위치 권한을 요청하지 않습니다.
+      loadAdminData();
     }
 
-    // 검색할 지역 이름 만들기
-    function getSearchRegion() {
-      const region = regionSelect.value;
-      const district = districtInput.value.trim();
+    // 전국 시·도, 시·군·구, 읍·면·동 데이터를 불러옵니다.
+    async function loadAdminData() {
+      try {
+        statusElement.textContent = "전국 행정구역 데이터를 불러오는 중입니다.";
 
-      return district ? region + " " + district : region;
+        const responses = await Promise.all([
+          fetch(ADMIN_DATA_URL + "ctprvn.geojson"),
+          fetch(ADMIN_DATA_URL + "sig.geojson"),
+          fetch(ADMIN_DATA_URL + "emd.geojson")
+        ]);
+
+        if (responses.some(function(response) {
+          return !response.ok;
+        })) {
+          throw new Error("행정구역 데이터 다운로드에 실패했습니다.");
+        }
+
+        const data = await Promise.all(
+          responses.map(function(response) {
+            return response.json();
+          })
+        );
+
+        sidoData = data[0].features.map(function(feature) {
+          return feature.properties;
+        });
+
+        sigunguData = data[1].features.map(function(feature) {
+          return feature.properties;
+        });
+
+        dongData = data[2].features.map(function(feature) {
+          return feature.properties;
+        });
+
+        fillSidoOptions();
+
+        sidoSelect.disabled = false;
+        statusElement.textContent =
+          "지역을 선택해 주세요. 기본 지역은 서울특별시 강남구입니다.";
+
+        // 처음에는 서울특별시 강남구를 선택합니다.
+        const seoul = sidoData.find(function(item) {
+          return item.CTP_KOR_NM === "서울특별시";
+        });
+
+        if (seoul) {
+          sidoSelect.value = seoul.CTPRVN_CD;
+          updateSigunguOptions();
+
+          const gangnam = sigunguData.find(function(item) {
+            return item.CTPRVN_CD === seoul.CTPRVN_CD &&
+              item.SIG_KOR_NM === "강남구";
+          });
+
+          if (gangnam) {
+            sigunguSelect.value = gangnam.SIG_CD;
+            updateDongOptions();
+          }
+
+          // 초기 선택 지역의 병원도 자동으로 검색합니다.
+          searchHospitals();
+        }
+      } catch (error) {
+        console.error(error);
+
+        statusElement.textContent =
+          "행정구역 데이터를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 페이지를 새로고침해 주세요.";
+
+        resultsElement.innerHTML = "";
+
+        const message = document.createElement("div");
+        message.className = "empty";
+        message.textContent =
+          "전국 행정구역 데이터는 외부 데이터 저장소에서 불러옵니다. 연결이 차단되거나 데이터 주소에 문제가 있으면 지역 선택 기능을 사용할 수 없습니다.";
+
+        resultsElement.appendChild(message);
+      }
     }
 
-    // 두 검색이 모두 끝나면 결과를 표시합니다.
-    function searchRegionHospitals() {
-      if (isSearching) return;
+    // 시·도 목록
+    function fillSidoOptions() {
+      sidoSelect.innerHTML = "";
 
-      isSearching = true;
-      searchButton.disabled = true;
+      sidoData
+        .slice()
+        .sort(function(a, b) {
+          return a.CTPRVN_CD.localeCompare(b.CTPRVN_CD);
+        })
+        .forEach(function(item) {
+          const option = document.createElement("option");
+          option.value = item.CTPRVN_CD;
+          option.textContent = item.CTP_KOR_NM;
+          sidoSelect.appendChild(option);
+        });
+    }
+
+    // 선택한 시·도의 시·군·구 목록
+    function updateSigunguOptions() {
+      sigunguSelect.innerHTML = "";
+      dongSelect.innerHTML = "";
+
+      const selectedSido = sidoSelect.value;
+
+      const districts = sigunguData
+        .filter(function(item) {
+          return item.CTPRVN_CD === selectedSido;
+        })
+        .sort(function(a, b) {
+          return a.SIG_KOR_NM.localeCompare(b.SIG_KOR_NM, "ko");
+        });
+
+      addOption(sigunguSelect, "", "시·군·구 선택");
+
+      districts.forEach(function(item) {
+        addOption(sigunguSelect, item.SIG_CD, item.SIG_KOR_NM);
+      });
+
+      sigunguSelect.disabled = false;
+      sigunguSelect.value = "";
+
+      addOption(dongSelect, "", "시·군·구를 먼저 선택");
+      dongSelect.disabled = true;
+    }
+
+    // 선택한 시·군·구의 읍·면·동 목록
+    function updateDongOptions() {
+      dongSelect.innerHTML = "";
+
+      const selectedDistrict = sigunguSelect.value;
+
+      const districts = dongData.filter(function(item) {
+        return item.SIG_CD === selectedDistrict;
+      });
+
+      // 법정동과 행정동 이름이 제공되면 둘 다 선택할 수 있게 합니다.
+      const names = new Set();
+
+      districts.forEach(function(item) {
+        if (item.EMD_KOR_NM) names.add(item.EMD_KOR_NM);
+        if (item.HJD_NM) names.add(item.HJD_NM);
+      });
+
+      addOption(dongSelect, "", "전체 지역");
+
+      Array.from(names)
+        .sort(function(a, b) {
+          return a.localeCompare(b, "ko");
+        })
+        .forEach(function(name) {
+          addOption(dongSelect, name, name);
+        });
+
+      dongSelect.disabled = false;
+      dongSelect.value = "";
+
+      // 동 선택지가 바뀌면 해당 구 전체를 검색합니다.
+      searchHospitals();
+    }
+
+    // 선택 항목 추가
+    function addOption(select, value, text) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = text;
+      select.appendChild(option);
+    }
+
+    // 현재 선택된 지역의 전체 주소
+    function getSelectedRegion() {
+      const sido = sidoSelect.options[sidoSelect.selectedIndex]?.text || "";
+      const sigungu = sigunguSelect.options[
+        sigunguSelect.selectedIndex
+      ]?.text || "";
+
+      const dong = dongSelect.value;
+
+      return [
+        sido,
+        sigungu,
+        dong
+      ].filter(function(value) {
+        return value && value !== "시·군·구 선택";
+      }).join(" ");
+    }
+
+    // 지역 선택이 변경되면 병원을 다시 검색합니다.
+    sidoSelect.addEventListener("change", function() {
+      updateSigunguOptions();
+      clearResults();
+      statusElement.textContent = "시·군·구를 선택해 주세요.";
+    });
+
+    sigunguSelect.addEventListener("change", function() {
+      if (!sigunguSelect.value) {
+        dongSelect.innerHTML = "";
+        addOption(dongSelect, "", "시·군·구를 먼저 선택");
+        dongSelect.disabled = true;
+        clearResults();
+        return;
+      }
+
+      updateDongOptions();
+    });
+
+    dongSelect.addEventListener("change", function() {
+      searchHospitals();
+    });
+
+    // 검색 결과 목록과 마커를 초기화합니다.
+    function clearResults() {
       resultsElement.innerHTML = "";
-      clearMarkers();
 
-      const region = getSearchRegion();
-      const allPlaces = [];
-      let finished = 0;
+      markers.forEach(function(marker) {
+        marker.setMap(null);
+      });
+
+      infoWindows.forEach(function(infoWindow) {
+        infoWindow.close();
+      });
+
+      markers = [];
+      infoWindows = [];
+    }
+
+    // 선택 지역의 병원 검색
+    function searchHospitals() {
+      if (!places || !sidoSelect.value || !sigunguSelect.value) {
+        return;
+      }
+
+      const version = ++searchVersion;
+      const region = getSelectedRegion();
+
+      clearResults();
 
       statusElement.textContent =
         region + " 지역의 병원을 검색하고 있습니다.";
 
-      // 공식 병원 검색과 주변 소아과 검색을 각각 실행합니다.
-      searchKeyword(region + " 달빛어린이병원", "official");
-      searchKeyword(region + " 소아청소년과", "pediatric");
+      // 지역 중심으로 지도를 이동합니다.
+      geocoder.addressSearch(region, function(data, status) {
+        if (version !== searchVersion) return;
 
-      function searchKeyword(keyword, type) {
-        places.keywordSearch(
-          keyword,
-          function(data, status) {
-            if (status === kakao.maps.services.Status.OK) {
-              data.forEach(function(place) {
-                // 빵집 등 병원이 아닌 결과를 제외합니다.
-                if (!isHospitalResult(place)) return;
+        if (
+          status === kakao.maps.services.Status.OK &&
+          data.length > 0
+        ) {
+          map.setCenter(
+            new kakao.maps.LatLng(
+              Number(data[0].y),
+              Number(data[0].x)
+            )
+          );
 
-                const existing = allPlaces.find(function(item) {
-                  return item.id === place.id;
-                });
+          map.setLevel(dongSelect.value ? 5 : 7);
+        }
+      });
 
-                if (existing) {
-                  if (type === "official") {
-                    existing.isOfficial = true;
-                  }
-                } else {
-                  allPlaces.push({
-                    id: place.id,
-                    name: place.place_name,
-                    address: place.road_address_name ||
-                             place.address_name ||
-                             "주소 정보 없음",
-                    phone: place.phone || "전화번호 정보 없음",
-                    url: place.place_url || "",
-                    lat: Number(place.y),
-                    lng: Number(place.x),
-                    isOfficial: type === "official"
-                  });
-                }
-              });
-            }
+      const foundPlaces = new Map();
+      let finished = 0;
 
-            finished++;
+      function onSearchComplete(data, type) {
+        if (version !== searchVersion) return;
 
-            if (finished === 2) {
-              isSearching = false;
-              searchButton.disabled = false;
-              displayResults(allPlaces, region);
-            }
-          },
-          {
-            size: 15
+        data.forEach(function(place) {
+          // 병원 또는 의원 관련 결과만 표시합니다.
+          if (!isMedicalPlace(place)) return;
+
+          // 검색어가 비슷한 다른 지역 결과를 최대한 걸러냅니다.
+          const address =
+            place.road_address_name || place.address_name || "";
+
+          if (!address.includes(region.split(" ")[0])) return;
+
+          if (region.split(" ").length >= 2 &&
+              !address.includes(region.split(" ")[1])) {
+            return;
           }
-        );
+
+          if (region.split(" ").length >= 3 &&
+              !address.includes(region.split(" ")[2])) {
+            return;
+          }
+
+          const existing = foundPlaces.get(place.id);
+
+          if (existing) {
+            if (type === "official") {
+              existing.isOfficialSearch = true;
+            }
+          } else {
+            foundPlaces.set(place.id, {
+              id: place.id,
+              name: place.place_name,
+              address: address || "주소 정보 없음",
+              phone: place.phone || "전화번호 정보 없음",
+              url: place.place_url || "",
+              lat: Number(place.y),
+              lng: Number(place.x),
+              isOfficialSearch: type === "official"
+            });
+          }
+        });
+
+        finished++;
+
+        if (finished === 2) {
+          if (version !== searchVersion) return;
+          displayHospitals(Array.from(foundPlaces.values()), region);
+        }
       }
+
+      // 공식 병원 이름 검색과 일반 소아과 검색을 병행합니다.
+      places.keywordSearch(
+        region + " 달빛어린이병원",
+        function(data, status) {
+          onSearchComplete(
+            status === kakao.maps.services.Status.OK ? data : [],
+            "official"
+          );
+        },
+        { size: 15 }
+      );
+
+      places.keywordSearch(
+        region + " 소아청소년과",
+        function(data, status) {
+          onSearchComplete(
+            status === kakao.maps.services.Status.OK ? data : [],
+            "pediatric"
+          );
+        },
+        { size: 15 }
+      );
     }
 
-    // 병원 관련 결과만 허용합니다.
-    function isHospitalResult(place) {
+    // 카카오맵 검색 결과가 의료기관인지 확인합니다.
+    function isMedicalPlace(place) {
       const category = place.category_name || "";
       const name = place.place_name || "";
 
-      const categoryIsMedical =
+      return (
         category.includes("병원") ||
         category.includes("의원") ||
         category.includes("소아청소년과") ||
-        category.includes("소아과");
-
-      const nameLooksMedical =
+        category.includes("소아과") ||
         name.includes("병원") ||
         name.includes("의원") ||
         name.includes("소아과") ||
-        name.includes("소아청소년과");
-
-      return categoryIsMedical || nameLooksMedical;
+        name.includes("소아청소년과")
+      );
     }
 
-    // 검색 결과 표시
-    function displayResults(hospitals, region) {
+    // 검색 결과를 목록과 지도에 표시합니다.
+    function displayHospitals(hospitals, region) {
       resultsElement.innerHTML = "";
-
-      // 세부 지역을 검색했다면 지도 중심을 검색 결과 위치로 옮깁니다.
-      if (hospitals.length > 0) {
-        const first = hospitals[0];
-
-        if (Number.isFinite(first.lat) && Number.isFinite(first.lng)) {
-          map.setCenter(new kakao.maps.LatLng(first.lat, first.lng));
-          map.setLevel(7);
-        }
-      } else {
-        // 검색 결과가 없더라도 지역을 지도로 찾을 수 있게 합니다.
-        const geocoder = new kakao.maps.services.Geocoder();
-
-        geocoder.addressSearch(region, function(data, status) {
-          if (
-            status === kakao.maps.services.Status.OK &&
-            data.length > 0
-          ) {
-            map.setCenter(
-              new kakao.maps.LatLng(
-                Number(data[0].y),
-                Number(data[0].x)
-              )
-            );
-            map.setLevel(8);
-          }
-        });
-      }
 
       if (hospitals.length === 0) {
         statusElement.textContent =
-          region + " 지역에서 검색된 병원이 없습니다. " +
-          "세부 지역을 바꾸거나 다른 지역을 선택해 주세요.";
+          region + " 지역의 검색 결과가 없습니다.";
+
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "카카오맵에서 검색 결과를 찾지 못했습니다. 다른 동을 선택하거나 해당 지역의 카카오맵 장소 정보를 확인해 주세요.";
+
+        resultsElement.appendChild(empty);
         return;
       }
 
-      // 공식 달빛어린이병원을 먼저, 나머지는 그다음 표시합니다.
+      // 공식 병원 이름 검색 결과를 먼저 보여줍니다.
       hospitals.sort(function(a, b) {
-        if (a.isOfficial !== b.isOfficial) {
-          return a.isOfficial ? -1 : 1;
+        if (a.isOfficialSearch !== b.isOfficialSearch) {
+          return a.isOfficialSearch ? -1 : 1;
         }
 
         return a.name.localeCompare(b.name, "ko");
       });
 
       statusElement.textContent =
-        region + " 검색 결과: " + hospitals.length +
-        "곳. 진료시간은 병원에 직접 확인해 주세요.";
+        region + " 검색 결과 " + hospitals.length +
+        "곳. 진료시간은 별도로 확인해야 합니다.";
 
       hospitals.forEach(function(hospital) {
         addMarker(hospital);
@@ -400,7 +632,7 @@
       });
     }
 
-    // 지도 마커 생성
+    // 지도 마커
     function addMarker(hospital) {
       if (!Number.isFinite(hospital.lat) ||
           !Number.isFinite(hospital.lng)) {
@@ -420,39 +652,39 @@
 
       markers.push(marker);
 
-      const content = document.createElement("div");
-      content.style.padding = "8px";
-      content.style.fontSize = "12px";
-      content.textContent =
+      const infoContent = document.createElement("div");
+      infoContent.style.padding = "8px";
+      infoContent.style.fontSize = "12px";
+      infoContent.textContent =
         hospital.name + " · 진료시간 확인 필요";
 
       const infoWindow = new kakao.maps.InfoWindow({
-        content: content
+        content: infoContent
       });
 
       infoWindows.push(infoWindow);
 
       kakao.maps.event.addListener(marker, "click", function() {
-        infoWindows.forEach(function(windowItem) {
-          windowItem.close();
+        infoWindows.forEach(function(item) {
+          item.close();
         });
 
         infoWindow.open(map, marker);
       });
     }
 
-    // 왼쪽 병원 카드 생성
+    // 왼쪽 병원 카드
     function addHospitalCard(hospital) {
       const card = document.createElement("div");
       card.className = "hospital";
 
       const tag = document.createElement("span");
-      tag.className = hospital.isOfficial
+      tag.className = hospital.isOfficialSearch
         ? "tag"
         : "tag pediatric";
 
-      tag.textContent = hospital.isOfficial
-        ? "달빛어린이병원 검색 결과"
+      tag.textContent = hospital.isOfficialSearch
+        ? "달빛어린이병원 이름 검색 결과"
         : "주변 소아과 검색 결과";
 
       const title = document.createElement("h3");
@@ -465,7 +697,7 @@
       phone.textContent = "전화: " + hospital.phone;
 
       const hours = document.createElement("p");
-      hours.textContent = "야간·휴일 진료: 진료시간 확인 필요";
+      hours.textContent = "야간·휴일 진료: 확인 불가";
 
       card.appendChild(tag);
       card.appendChild(title);
@@ -478,8 +710,7 @@
         link.href = hospital.url;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        link.textContent = "카카오맵에서 상세 정보 보기";
-
+        link.textContent = "카카오맵 상세 정보 보기";
         card.appendChild(link);
       }
 
@@ -489,29 +720,14 @@
         map.setCenter(
           new kakao.maps.LatLng(hospital.lat, hospital.lng)
         );
+
         map.setLevel(4);
       });
 
       resultsElement.appendChild(card);
     }
 
-    // 이전 검색 마커 제거
-    function clearMarkers() {
-      markers.forEach(function(marker) {
-        marker.setMap(null);
-      });
-
-      infoWindows.forEach(function(windowItem) {
-        windowItem.close();
-      });
-
-      markers = [];
-      infoWindows = [];
-    }
-
-    searchButton.addEventListener("click", searchRegionHospitals);
-
-    // SDK가 준비된 뒤 지도를 초기화합니다.
+    // SDK 로드 이후 지도를 만듭니다.
     window.addEventListener("load", initializeMap);
   </script>
 </body>
