@@ -509,7 +509,16 @@
                     });
 
                     searchInput.value = "";
-                    searchHospitals();
+                    searchHospitals( // 검색어를 너무 길게 만들지 않고, 병원 종류를 우선 검색합니다.
+ const region = getSelectedRegion();
+ const typedKeyword = searchInput.value.trim();
+
+ const hospitalKeyword = activeType === "moonlight"
+     ? "달빛어린이병원"
+     : "소아청소년과";
+
+ // 검색창에 검색어가 있으면 해당 검색어를 사용합니다.
+ const keyword = typedKeyword || hospitalKeyword;);
                 });
             });
 
