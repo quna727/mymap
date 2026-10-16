@@ -1,630 +1,666 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>달빛어린이병원 지도</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>달빛 소아 진료 지도</title>
 
-<style>
-* { box-sizing: border-box; }
+  <!-- 카카오맵 SDK -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=cc56435398f9d272918b6e8f89c3a42a&libraries=services&autoload=false"></script>
 
-body {
-    margin: 0;
-    font-family: Arial, "Malgun Gothic", sans-serif;
-    color: #222;
-}
+  <style>
+    * { box-sizing: border-box; }
 
-.container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-}
+    body {
+      margin: 0;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      color: #222;
+    }
 
-.sidebar {
-    width: 390px;
-    min-width: 320px;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #ddd;
-    background: white;
-    z-index: 1;
-}
+    header {
+      padding: 18px 22px;
+      background: #3878f5;
+      color: white;
+    }
 
-header { padding: 20px; }
-header h1 { margin: 0 0 8px; font-size: 22px; }
-header p { margin: 0; color: #666; font-size: 13px; line-height: 1.6; }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 23px;
+    }
 
-.tabs {
-    display: flex;
-    gap: 8px;
-    padding: 0 16px 14px;
-}
+    header p {
+      margin: 0;
+      font-size: 14px;
+    }
 
-.tab-button {
-    flex: 1;
-    padding: 11px 5px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-weight: bold;
-}
+    .app {
+      display: grid;
+      grid-template-columns: 370px minmax(0, 1fr);
+      height: calc(100vh - 82px);
+      min-height: 500px;
+    }
 
-.tab-button.active {
-    color: white;
-    background: #3182f6;
-    border-color: #3182f6;
-}
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border-right: 1px solid #ddd;
+    }
 
-.region-box {
-    display: grid;
-    gap: 8px;
-    padding: 0 16px 14px;
-}
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
 
-.region-box label { font-size: 13px; font-weight: bold; }
+    .tab {
+      flex: 1;
+      padding: 14px 5px;
+      border: 0;
+      background: #f3f5f8;
+      cursor: pointer;
+      font-size: 13px;
+    }
 
-select, input {
-    width: 100%;
-    min-width: 0;
-    padding: 11px;
-    border: 1px solid #ddd;
-    border-radius: 7px;
-    background: white;
-    font-size: 13px;
-}
+    .tab.active {
+      background: white;
+      color: #2467e8;
+      font-weight: bold;
+      box-shadow: inset 0 -3px #3878f5;
+    }
 
-.search-box { padding: 0 16px 14px; }
+    .search-panel {
+      padding: 14px;
+      border-bottom: 1px solid #ddd;
+    }
 
-.search-box button, .location-button {
-    padding: 11px 14px;
-    border: 0;
-    border-radius: 8px;
-    background: #3182f6;
-    color: white;
-    cursor: pointer;
-}
+    label {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 13px;
+      font-weight: bold;
+    }
 
-.search-box button { width: 100%; margin-top: 8px; }
+    input, select, .search-button {
+      width: 100%;
+      min-height: 40px;
+      margin-bottom: 10px;
+      padding: 9px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 14px;
+    }
 
-.status {
-    padding: 0 16px 12px;
-    color: #666;
-    font-size: 12px;
-    line-height: 1.6;
-}
+    .search-button {
+      margin-bottom: 0;
+      border: 0;
+      background: #3878f5;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.result-list {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    border-top: 1px solid #eee;
-}
+    .search-button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
 
-.place-item {
-    padding: 15px 17px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-}
+    #status {
+      padding: 12px 14px;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
 
-.place-item:hover { background: #f5f8ff; }
-.place-item h3 { margin: 0 0 8px; font-size: 16px; }
-.place-item p { margin: 6px 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
-.notice { color: #805b15; background: #fff7e6; padding: 8px; border-radius: 6px; }
-.place-item a { color: #1765cf; font-size: 12px; }
-.empty-message { padding: 20px 16px; color: #666; font-size: 13px; line-height: 1.7; }
+    .notice {
+      padding: 10px 14px;
+      background: #fff8e6;
+      color: #765b14;
+      font-size: 12px;
+      line-height: 1.5;
+    }
 
-.map-area { position: relative; flex: 1; min-width: 0; }
-#map { width: 100%; height: 100%; }
+    #results {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
 
-.location-button {
-    position: absolute;
-    right: 16px;
-    bottom: 20px;
-    z-index: 2;
-    background: white;
-    color: #222;
-    border: 1px solid #ddd;
-}
+    .result {
+      padding: 14px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
 
-@media (max-width: 650px) {
-    .container { flex-direction: column; }
-    .sidebar { width: 100%; min-width: 0; height: 58%; }
-    .map-area { flex: 1; min-height: 200px; }
-    header { padding: 12px 16px; }
-    header h1 { font-size: 19px; }
-}
-</style>
+    .result:hover {
+      background: #f5f8ff;
+    }
+
+    .result h3 {
+      margin: 0 0 7px;
+      font-size: 15px;
+    }
+
+    .result p {
+      margin: 4px 0;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 7px;
+      margin-bottom: 7px;
+      border-radius: 4px;
+      background: #e8f0ff;
+      color: #245fc7;
+      font-size: 11px;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      background: #f1f3f5;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+      }
+
+      #map {
+        order: 1;
+        height: 42vh;
+        min-height: 300px;
+      }
+
+      .sidebar {
+        order: 2;
+        min-height: 500px;
+      }
+
+      #results {
+        max-height: 450px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<div class="container">
-    <aside class="sidebar">
-        <header>
-            <h1>🌙 달빛어린이병원 지도</h1>
-            <p>지역별 소아 진료기관을 찾아보세요.<br>방문 전 전화로 진료 여부를 확인하세요.</p>
-        </header>
+  <header>
+    <h1>🌙 달빛 소아 진료 지도</h1>
+    <p>지역별 병·의원 정보를 검색해 보세요.</p>
+  </header>
 
-        <div class="tabs">
-            <button class="tab-button active" data-type="moonlight" type="button">
-                🌙 달빛어린이병원
-            </button>
-            <button class="tab-button" data-type="pediatric" type="button">
-                🏥 소아청소년과
-            </button>
-        </div>
-
-        <div class="region-box">
-            <label for="province">시·도</label>
-            <select id="province">
-                <option value="">시·도 선택</option>
-                <option selected>서울특별시</option>
-                <option>부산광역시</option>
-                <option>대구광역시</option>
-                <option>인천광역시</option>
-                <option>광주광역시</option>
-                <option>대전광역시</option>
-                <option>울산광역시</option>
-                <option>세종특별자치시</option>
-                <option>경기도</option>
-                <option>강원특별자치도</option>
-                <option>충청북도</option>
-                <option>충청남도</option>
-                <option>전북특별자치도</option>
-                <option>전라남도</option>
-                <option>경상북도</option>
-                <option>경상남도</option>
-                <option>제주특별자치도</option>
-            </select>
-
-            <label for="district">시·군·구</label>
-            <select id="district">
-                <option value="">전체 구·군</option>
-            </select>
-
-            <label for="dong">읍·면·동 (선택)</label>
-            <input id="dong" type="text" placeholder="예: 역삼동">
-        </div>
-
-        <div class="search-box">
-            <button id="searchButton" type="button">이 지역 병원 검색</button>
-        </div>
-
-        <div class="status" id="status" role="status">
-            지도를 불러오고 있습니다.
-        </div>
-
-        <div class="result-list" id="results">
-            <div class="empty-message">지역을 선택하고 검색 버튼을 눌러 주세요.</div>
-        </div>
-    </aside>
-
-    <main class="map-area">
-        <div id="map"></div>
-        <button class="location-button" id="myLocation" type="button">
-            현재 위치로 이동
+  <main class="app">
+    <section class="sidebar">
+      <div class="tabs">
+        <button class="tab active" id="moonlightTab" type="button">
+          달빛어린이병원
         </button>
-    </main>
-</div>
+        <button class="tab" id="pediatricTab" type="button">
+          병·의원 검색
+        </button>
+      </div>
 
-<!-- 설정 1: 아래 Kakao JavaScript 키를 본인의 키로 바꾸세요. -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=cc56435398f9d272918b6e8f89c3a42a&libraries=services&autoload=false"></script>
+      <div class="search-panel">
+        <label for="region">시·도</label>
+        <select id="region">
+          <option>서울특별시</option>
+          <option>부산광역시</option>
+          <option>대구광역시</option>
+          <option>인천광역시</option>
+          <option>광주광역시</option>
+          <option>대전광역시</option>
+          <option>울산광역시</option>
+          <option>세종특별자치시</option>
+          <option>경기도</option>
+          <option>강원특별자치도</option>
+          <option>충청북도</option>
+          <option>충청남도</option>
+          <option>전북특별자치도</option>
+          <option>전라남도</option>
+          <option>경상북도</option>
+          <option>경상남도</option>
+          <option>제주특별자치도</option>
+        </select>
 
-<script>
-"use strict";
+        <label for="district">시·군·구 (선택)</label>
+        <input id="district" placeholder="예: 강남구, 수원시">
 
-/*
- * 설정 2: 공공데이터포털의 일반 인증키(Decoding)를 입력하세요.
- * 브라우저에 키를 넣으면 다른 사람에게 노출될 수 있습니다.
- */
-const API_SERVICE_KEY = "6fea20374da1747f7fd5d2ad40bce4ce9f435449d84d7eee5281ef3f7e92b0e9', 
+        <label for="keyword">병원 이름 (선택)</label>
+        <input id="keyword" placeholder="예: 어린이병원">
 
-/*
- * 공식 명세에서 확인한 병·의원 조회 주소입니다.
- * 요청 변수: Q0(시도), Q1(시군구), QD(진료과목), pageNo, numOfRows
- */
-const API_URL =
-    "https://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlMdcncListInfoInqire";
+        <button class="search-button" id="searchButton" type="button">
+          검색하기
+        </button>
+      </div>
 
-const DEFAULT_CENTER = new kakao.maps.LatLng(37.566826, 126.9786567);
-const DEFAULT_LEVEL = 5;
+      <div class="notice" id="notice">
+        병·의원 기본정보 검색 결과입니다.
+        공식 지정 여부 및 실제 진료시간은 별도 확인이 필요합니다.
+      </div>
 
-let map;
-let infoWindow;
-let markers = [];
-let activeType = "moonlight";
-let currentPosition = null;
-let searchVersion = 0;
+      <div id="status" role="status" aria-live="polite">
+        지도를 불러오는 중입니다...
+      </div>
 
-const provinceSelect = document.getElementById("province");
-const districtSelect = document.getElementById("district");
-const dongInput = document.getElementById("dong");
-const resultsElement = document.getElementById("results");
-const statusElement = document.getElementById("status");
-const searchButton = document.getElementById("searchButton");
+      <div id="results"></div>
+    </section>
 
-const seoulDistricts = [
-    "강남구", "강동구", "강북구", "강서구", "관악구",
-    "광진구", "구로구", "금천구", "노원구", "도봉구",
-    "동대문구", "동작구", "마포구", "서대문구", "서초구",
-    "성동구", "성북구", "송파구", "양천구", "영등포구",
-    "용산구", "은평구", "종로구", "중구", "중랑구"
-];
+    <div id="map" aria-label="병원 위치 지도"></div>
+  </main>
 
-function setStatus(message) {
-    statusElement.textContent = message;
-}
+  <script>
+    // =========================================
+    // 1. 설정
+    // =========================================
 
-function updateDistricts() {
-    districtSelect.replaceChildren();
+    // 공공데이터포털에서 발급받은 인증키를 입력하세요.
+    // 일반 인증키(Decoding)를 사용하는 경우 해당 키를 넣으세요.
+    const SERVICE_KEY = "YOUR_SERVICE_KEY";
 
-    const firstOption = document.createElement("option");
-    firstOption.value = "";
-    firstOption.textContent = "전체 구·군";
-    districtSelect.appendChild(firstOption);
+    const API_URL =
+      "https://apis.data.go.kr/B552657/HsptlAsembySearchService/getHsptlMdcncListInfoInqire";
 
-    if (provinceSelect.value === "서울특별시") {
-        districtSelect.disabled = false;
+    const DEFAULT_LATITUDE = 37.566826;
+    const DEFAULT_LONGITUDE = 126.9786567;
+    const DEFAULT_LEVEL = 5;
 
-        seoulDistricts.forEach(function(name) {
-            const option = document.createElement("option");
-            option.value = name;
-            option.textContent = name;
-            districtSelect.appendChild(option);
-        });
-    } else {
-        /*
-         * 다른 시·도의 구 목록은 이 API에서 직접 제공하지 않습니다.
-         * 우선 시·도 전체를 검색할 수 있도록 구 선택을 비활성화합니다.
-         */
-        districtSelect.disabled = true;
-    }
-}
+    let map = null;
+    let infoWindow = null;
+    let markers = [];
+    let mapReady = false;
+    let currentTab = "moonlight";
+    let searchSequence = 0;
 
-function clearMapAndResults() {
-    markers.forEach(function(marker) {
-        marker.setMap(null);
-    });
+    const regionSelect = document.getElementById("region");
+    const districtInput = document.getElementById("district");
+    const keywordInput = document.getElementById("keyword");
+    const searchButton = document.getElementById("searchButton");
+    const statusElement = document.getElementById("status");
+    const resultsElement = document.getElementById("results");
+    const noticeElement = document.getElementById("notice");
+    const moonlightTab = document.getElementById("moonlightTab");
+    const pediatricTab = document.getElementById("pediatricTab");
 
-    markers = [];
-    infoWindow.close();
-    resultsElement.replaceChildren();
-}
-
-function addEmptyMessage(message) {
-    const element = document.createElement("div");
-    element.className = "empty-message";
-    element.textContent = message;
-    resultsElement.appendChild(element);
-}
-
-/*
- * XML 안의 태그 이름이 실제 응답에 존재하는지 확인해 값을 읽습니다.
- * API가 다른 항목 이름을 반환하면 빈 문자열을 돌려줍니다.
- */
-function readXmlValue(item, possibleNames) {
-    for (const name of possibleNames) {
-        const node = item.getElementsByTagName(name)[0];
-
-        if (node && node.textContent.trim()) {
-            return node.textContent.trim();
-        }
+    function setStatus(message) {
+      statusElement.textContent = message;
     }
 
-    return "";
-}
+    // =========================================
+    // 2. 지도 초기화
+    // =========================================
 
-function makeMapLink(placeName, address) {
-    return "https://map.kakao.com/link/search/" +
-        encodeURIComponent(placeName + " " + address);
-}
+    function initializeMap() {
+      const center = new kakao.maps.LatLng(
+        DEFAULT_LATITUDE,
+        DEFAULT_LONGITUDE
+      );
 
-function showInfo(item, marker) {
-    const content = document.createElement("div");
-    content.style.cssText =
-        "padding:10px;max-width:240px;font-size:13px;line-height:1.6;";
+      map = new kakao.maps.Map(document.getElementById("map"), {
+        center: center,
+        level: DEFAULT_LEVEL
+      });
 
-    const title = document.createElement("strong");
-    title.textContent = item.name;
+      infoWindow = new kakao.maps.InfoWindow({ zIndex: 10 });
+      mapReady = true;
 
-    const address = document.createElement("div");
-    address.textContent = item.address || "주소 정보 없음";
+      setStatus("지도가 준비되었습니다. 지역을 선택하고 검색하세요.");
 
-    const phone = document.createElement("div");
-    phone.textContent = item.phone || "전화번호 정보 없음";
+      searchButton.addEventListener("click", searchHospitals);
 
-    const hours = document.createElement("div");
-    hours.textContent = "진료시간: " + (item.hours || "별도 확인 필요");
-
-    content.append(title, address, phone, hours);
-    infoWindow.setContent(content);
-    infoWindow.open(map, marker);
-}
-
-/*
- * 공공 API 응답에는 병원별 위도·경도가 없을 수 있습니다.
- * 이 경우 카카오 장소 검색으로 병원 위치를 보완합니다.
- */
-function findMapPosition(item) {
-    return new Promise(function(resolve) {
-        const keyword = item.name + " " + item.address;
-
-        const places = new kakao.maps.services.Places();
-
-        places.keywordSearch(keyword, function(data, status) {
-            if (status === kakao.maps.services.Status.OK && data.length) {
-                resolve({
-                    lat: Number(data[0].y),
-                    lng: Number(data[0].x)
-                });
-            } else {
-                resolve(null);
-            }
+      [districtInput, keywordInput].forEach(function (input) {
+        input.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") searchHospitals();
         });
-    });
-}
+      });
 
-function addHospitalCard(item, position) {
-    const article = document.createElement("article");
-    article.className = "place-item";
+      moonlightTab.addEventListener("click", function () {
+        changeTab("moonlight");
+      });
 
-    const title = document.createElement("h3");
-    title.textContent = item.name;
+      pediatricTab.addEventListener("click", function () {
+        changeTab("pediatric");
+      });
 
-    const address = document.createElement("p");
-    address.textContent = "📍 주소: " + (item.address || "주소 정보 없음");
+      // 위치 사용을 허용한 경우 현재 위치로 이동합니다.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            map.setCenter(new kakao.maps.LatLng(
+              position.coords.latitude,
+              position.coords.longitude
+            ));
+          },
+          function () {
+            // 권한이 없으면 기본 위치인 서울시청을 사용합니다.
+          },
+          { timeout: 5000, maximumAge: 60000 }
+        );
+      }
 
-    const phone = document.createElement("p");
-    phone.textContent = "☎ 전화번호: " + (item.phone || "정보 없음");
-
-    const hours = document.createElement("p");
-    hours.textContent = "🕒 진료시간: " + (item.hours || "별도 확인 필요");
-
-    const notice = document.createElement("p");
-    notice.className = "notice";
-    notice.textContent =
-        "방문 전 전화로 야간·휴일 운영 여부와 소아 진료 가능 여부를 확인하세요.";
-
-    const link = document.createElement("a");
-    link.href = makeMapLink(item.name, item.address);
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "카카오맵에서 확인";
-
-    article.append(title, address, phone, hours, notice, link);
-
-    if (position) {
-        article.addEventListener("click", function(event) {
-            if (event.target.closest("a")) return;
-
-            const latLng = new kakao.maps.LatLng(position.lat, position.lng);
-            map.panTo(latLng);
-        });
+      searchHospitals();
     }
 
-    resultsElement.appendChild(article);
-}
+    // =========================================
+    // 3. 탭 변경
+    // =========================================
 
-async function searchHospitals() {
-    const thisVersion = ++searchVersion;
+    function changeTab(tabName) {
+      currentTab = tabName;
 
-    if (!API_SERVICE_KEY ||
-        API_SERVICE_KEY.includes("여기에_공공데이터포털")) {
-        setStatus("코드의 API_SERVICE_KEY에 공공데이터포털 인증키를 입력하세요.");
+      moonlightTab.classList.toggle(
+        "active", tabName === "moonlight"
+      );
+      pediatricTab.classList.toggle(
+        "active", tabName === "pediatric"
+      );
+
+      if (tabName === "moonlight") {
+        noticeElement.textContent =
+          "일반 병·의원 API만으로 공식 달빛어린이병원 지정 여부를 " +
+          "확정할 수 없습니다. 공식 지정 목록과 대조해야 합니다.";
+      } else {
+        noticeElement.textContent =
+          "국립중앙의료원 병·의원 API에서 지역별 정보를 검색합니다. " +
+          "이 API의 결과가 소아청소년과만을 의미하는 것은 아닙니다.";
+      }
+
+      if (mapReady) searchHospitals();
+    }
+
+    // =========================================
+    // 4. 공공데이터 API 요청
+    // =========================================
+
+    async function searchHospitals() {
+      if (!mapReady) return;
+
+      if (!SERVICE_KEY || SERVICE_KEY === "6fea20374da1747f7fd5d2ad40bce4ce9f435449d84d7eee5281ef3f7e92b0e9
+") {
+        setStatus(
+          "공공데이터 API 인증키를 입력해야 합니다.\n" +
+          "코드 위쪽 SERVICE_KEY 값을 발급받은 키로 바꿔주세요."
+        );
         return;
-    }
+      }
 
-    clearMapAndResults();
-    searchButton.disabled = true;
-    setStatus("선택한 지역의 병원을 조회하고 있습니다...");
+      const thisSearch = ++searchSequence;
 
-    const params = new URLSearchParams({
-        serviceKey: API_SERVICE_KEY,
-        Q0: provinceSelect.value,
-        pageNo: "1",
-        numOfRows: "100",
-        _type: "xml"
-    });
+      searchButton.disabled = true;
+      searchButton.textContent = "검색 중...";
+      setStatus("공공데이터에서 병·의원 정보를 가져오는 중입니다...");
+      clearMarkers();
 
-    if (districtSelect.value && !districtSelect.disabled) {
-        params.set("Q1", districtSelect.value);
-    }
+      const params = new URLSearchParams();
 
-    /*
-     * 소아청소년과 진료과목 코드는 API의 공통코드 명세에서 확인해야 합니다.
-     * 확인되지 않은 코드를 임의로 지정하지 않고 지역 결과를 가져온 뒤
-     * 병원 이름을 기준으로 목록을 구분합니다.
-     */
-    const requestUrl = API_URL + "?" + params.toString();
+      params.set("serviceKey", SERVICE_KEY);
+      params.set("Q0", regionSelect.value);
+      params.set("numOfRows", "100");
+      params.set("pageNo", "1");
+      params.set("ORD", "NAME");
 
-    try {
+      const district = districtInput.value.trim();
+      const keyword = keywordInput.value.trim();
+
+      if (district) params.set("Q1", district);
+
+      // 병원 이름을 입력하면 API의 기관명 검색 조건으로 사용합니다.
+      if (keyword) params.set("QN", keyword);
+
+      const requestUrl = API_URL + "?" + params.toString();
+
+      try {
         const response = await fetch(requestUrl);
 
         if (!response.ok) {
-            throw new Error("HTTP 상태 코드 " + response.status);
+          throw new Error("HTTP 오류: " + response.status);
         }
 
         const xmlText = await response.text();
-        const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+
+        // 응답이 XML인지 확인하고 파싱합니다.
+        const xml = new DOMParser().parseFromString(
+          xmlText, "application/xml"
+        );
 
         if (xml.querySelector("parsererror")) {
-            throw new Error("API 응답 XML을 읽을 수 없습니다.");
+          throw new Error("API 응답을 XML로 읽지 못했습니다.");
         }
 
-        const resultCode = readXmlValue(xml, ["resultCode"]);
-        const resultMessage = readXmlValue(xml, ["resultMsg"]);
+        const resultCode =
+          xml.querySelector("header resultCode")?.textContent;
+
+        const resultMessage =
+          xml.querySelector("header resultMsg")?.textContent;
 
         if (resultCode && resultCode !== "00") {
-            throw new Error(resultMessage || "API에서 오류를 반환했습니다.");
+          throw new Error(
+            "공공데이터 API 오류: " + (resultMessage || resultCode)
+          );
         }
 
-        const items = Array.from(xml.getElementsByTagName("item"));
+        const items = Array.from(xml.querySelectorAll("item"));
 
-        if (thisVersion !== searchVersion) return;
+        if (thisSearch !== searchSequence) return;
 
-        /*
-         * 실제 출력 필드명은 서비스 응답에 따라 다를 수 있습니다.
-         * 주소·전화번호·기관명 후보를 여러 개 확인합니다.
-         */
-        let hospitals = items.map(function(item) {
-            return {
-                name: readXmlValue(item, ["dutyName", "yadmNm", "name", "dutyname"]),
-                address: readXmlValue(item, ["dutyAddr", "addr", "address", "yadmAddr"]),
-                phone: readXmlValue(item, ["dutyTel1", "telno", "tel", "phone"]),
-                hours: readXmlValue(item, [
-                    "dutyTime1s", "dutyTime1c", "dutyTime2s", "dutyTime2c"
-                ])
-            };
-        }).filter(function(item) {
-            return item.name;
-        });
-
-        if (activeType === "pediatric") {
-            hospitals = hospitals.filter(function(item) {
-                return /소아|어린이|아동|청소년|키즈/i.test(item.name);
-            });
-        } else {
-            hospitals = hospitals.filter(function(item) {
-                return /달빛어린이병원/i.test(item.name);
-            });
+        if (items.length === 0) {
+          setStatus(
+            "검색 결과가 없습니다.\n" +
+            "지역이나 병원 이름을 바꿔 다시 검색해보세요."
+          );
+          return;
         }
 
-        const dong = dongInput.value.trim();
+        const hospitals = items.map(parseHospital);
 
-        if (dong) {
-            hospitals = hospitals.filter(function(item) {
-                return item.address.includes(dong);
-            });
+        // 달빛 탭은 이름만으로 공식 지정 여부를 판단하지 않습니다.
+        // 따라서 기본 병·의원 API 결과를 공식 지정 병원이라고 표시하지 않습니다.
+        if (currentTab === "moonlight") {
+          setStatus(
+            "기본 병·의원 정보 " + hospitals.length + "건을 받았습니다.\n" +
+            "공식 지정 병원 목록과 연결되지 않아 지도에는 표시하지 않았습니다."
+          );
+          resultsElement.innerHTML = "";
+
+          const message = document.createElement("p");
+          message.style.cssText = "padding:14px;font-size:13px;line-height:1.6;";
+          message.textContent =
+            "공식 달빛어린이병원 목록을 별도로 연결해야 합니다. " +
+            "일반 병·의원 데이터만으로 지정 병원을 정확하게 구분할 수 없습니다.";
+          resultsElement.appendChild(message);
+          return;
         }
 
-        if (!hospitals.length) {
-            addEmptyMessage(
-                "조건에 맞는 결과가 없습니다. 구를 넓혀 검색하거나 소아청소년과 탭을 선택해 보세요. " +
-                "공식 달빛어린이병원 지정 여부는 별도 공식 목록과 대조해야 합니다."
-            );
-            setStatus("조회 결과가 없거나 응답 필드가 예상과 다릅니다.");
-            return;
-        }
-
-        setStatus("병원 " + hospitals.length + "곳을 찾았습니다. 지도 위치를 확인하고 있습니다.");
-
-        const bounds = new kakao.maps.LatLngBounds();
-        let locatedCount = 0;
-
-        for (const hospital of hospitals) {
-            if (thisVersion !== searchVersion) return;
-
-            const position = await findMapPosition(hospital);
-
-            if (position) {
-                const latLng = new kakao.maps.LatLng(position.lat, position.lng);
-
-                const marker = new kakao.maps.Marker({
-                    map: map,
-                    position: latLng
-                });
-
-                markers.push(marker);
-                bounds.extend(latLng);
-                locatedCount++;
-
-                kakao.maps.event.addListener(marker, "click", function() {
-                    showInfo(hospital, marker);
-                });
-            }
-
-            addHospitalCard(hospital, position);
-        }
-
-        if (locatedCount > 0) {
-            map.setBounds(bounds);
-        }
+        displayHospitals(hospitals);
+      } catch (error) {
+        console.error("병원 API 오류:", error);
 
         setStatus(
-            "목록 " + hospitals.length + "곳 / 지도 위치 확인 " +
-            locatedCount + "곳. 진료시간은 병원에 직접 확인하세요."
+          "공공데이터를 가져오지 못했습니다.\n" +
+          error.message + "\n\n" +
+          "브라우저에서 CORS 요청이 차단되었거나 인증키, API 신청 상태, " +
+          "요청 주소에 문제가 있을 수 있습니다."
         );
-    } catch (error) {
-        console.error("병원 조회 오류:", error);
-
-        addEmptyMessage(
-            "병원 정보를 불러오지 못했습니다. 인증키, API 이용 승인, " +
-            "브라우저의 CORS 오류 여부를 확인해 주세요."
-        );
-
-        setStatus("조회 실패: " + error.message);
-    } finally {
-        searchButton.disabled = false;
+      } finally {
+        if (thisSearch === searchSequence) {
+          searchButton.disabled = false;
+          searchButton.textContent = "검색하기";
+        }
+      }
     }
-}
 
-function initializeMap() {
-    map = new kakao.maps.Map(document.getElementById("map"), {
-        center: DEFAULT_CENTER,
-        level: DEFAULT_LEVEL
-    });
+    // =========================================
+    // 5. XML의 병원 정보 읽기
+    // =========================================
 
-    infoWindow = new kakao.maps.InfoWindow({ zIndex: 3 });
+    function getTagText(item, tagName) {
+      return item.querySelector(tagName)?.textContent?.trim() || "";
+    }
 
-    document.querySelectorAll(".tab-button").forEach(function(button) {
-        button.addEventListener("click", function() {
-            activeType = button.dataset.type;
+    function parseHospital(item) {
+      return {
+        name: getTagText(item, "dutyName"),
+        address: getTagText(item, "dutyAddr"),
+        phone: getTagText(item, "dutyTel1"),
+        latitude: Number(getTagText(item, "wgs84Lat")),
+        longitude: Number(getTagText(item, "wgs84Lon")),
+        id: getTagText(item, "hpid")
+      };
+    }
 
-            document.querySelectorAll(".tab-button").forEach(function(tab) {
-                tab.classList.toggle("active", tab === button);
-            });
+    // =========================================
+    // 6. 지도 마커와 결과 목록
+    // =========================================
 
-            searchHospitals();
-        });
-    });
+    function clearMarkers() {
+      markers.forEach(function (marker) {
+        marker.setMap(null);
+      });
 
-    provinceSelect.addEventListener("change", function() {
-        updateDistricts();
-    });
+      markers = [];
 
-    searchButton.addEventListener("click", searchHospitals);
+      if (infoWindow) infoWindow.close();
 
-    document.getElementById("myLocation").addEventListener("click", function() {
-        if (!navigator.geolocation) {
-            setStatus("이 브라우저는 위치 기능을 지원하지 않습니다.");
-            return;
+      resultsElement.innerHTML = "";
+    }
+
+    function displayHospitals(hospitals) {
+      const bounds = new kakao.maps.LatLngBounds();
+      let displayedCount = 0;
+
+      hospitals.forEach(function (hospital) {
+        const hasCoordinates =
+          Number.isFinite(hospital.latitude) &&
+          Number.isFinite(hospital.longitude) &&
+          hospital.latitude !== 0 &&
+          hospital.longitude !== 0;
+
+        const item = document.createElement("article");
+        item.className = "result";
+
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = "공공데이터 병·의원 정보";
+
+        const title = document.createElement("h3");
+        title.textContent = hospital.name || "이름 정보 없음";
+
+        const address = document.createElement("p");
+        address.textContent = "주소: " + (hospital.address || "정보 없음");
+
+        const phone = document.createElement("p");
+        phone.textContent = "전화: " + (hospital.phone || "정보 없음");
+
+        item.appendChild(tag);
+        item.appendChild(title);
+        item.appendChild(address);
+        item.appendChild(phone);
+
+        if (hasCoordinates) {
+          const position = new kakao.maps.LatLng(
+            hospital.latitude, hospital.longitude
+          );
+
+          const marker = new kakao.maps.Marker({
+            map: map,
+            position: position,
+            title: hospital.name
+          });
+
+          markers.push(marker);
+          bounds.extend(position);
+          displayedCount++;
+
+          kakao.maps.event.addListener(marker, "click", function () {
+            showInfo(hospital, position);
+          });
+
+          item.addEventListener("click", function () {
+            map.setCenter(position);
+            map.setLevel(3);
+            showInfo(hospital, position);
+          });
+        } else {
+          const noLocation = document.createElement("p");
+          noLocation.textContent = "위치 좌표가 없어 지도에 표시하지 못했습니다.";
+          item.appendChild(noLocation);
         }
 
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                currentPosition = new kakao.maps.LatLng(
-                    position.coords.latitude,
-                    position.coords.longitude
-                );
+        resultsElement.appendChild(item);
+      });
 
-                map.setCenter(currentPosition);
-                map.setLevel(DEFAULT_LEVEL);
-            },
-            function() {
-                setStatus("위치 권한을 확인해 주세요. 지역 선택 검색은 사용할 수 있습니다.");
-            }
+      if (displayedCount === 1) {
+        const first = markers[0].getPosition();
+        map.setCenter(first);
+      } else if (displayedCount > 1) {
+        map.setBounds(bounds);
+      }
+
+      setStatus(
+        "API 결과 " + hospitals.length + "건 중 " +
+        displayedCount + "건을 지도에 표시했습니다."
+      );
+    }
+
+    // =========================================
+    // 7. 지도 정보창
+    // =========================================
+
+    function showInfo(hospital, position) {
+      const content = document.createElement("div");
+      content.style.cssText =
+        "padding:10px;max-width:250px;font-size:13px;line-height:1.6;";
+
+      const name = document.createElement("strong");
+      name.textContent = hospital.name || "이름 정보 없음";
+
+      const address = document.createElement("div");
+      address.textContent = hospital.address || "주소 정보 없음";
+
+      const phone = document.createElement("div");
+      phone.textContent = hospital.phone || "전화번호 정보 없음";
+
+      content.appendChild(name);
+      content.appendChild(address);
+      content.appendChild(phone);
+
+      infoWindow.setContent(content);
+      infoWindow.setPosition(position);
+      infoWindow.open(map);
+    }
+
+    // =========================================
+    // 8. SDK 로딩 후 지도 생성
+    // =========================================
+
+    window.addEventListener("load", function () {
+      if (!window.kakao || !window.kakao.maps) {
+        setStatus(
+          "카카오맵 SDK를 불러오지 못했습니다.\n" +
+          "카카오 개발자 사이트의 JavaScript 키와 Web 도메인 설정을 확인해주세요."
         );
-    });
-
-    updateDistricts();
-    setStatus("지역을 선택하고 검색 버튼을 눌러 주세요.");
-}
-
-window.addEventListener("load", function() {
-    if (!window.kakao || !window.kakao.maps) {
-        setStatus("카카오 지도 SDK 로딩 실패: JavaScript 키와 도메인을 확인하세요.");
         return;
-    }
+      }
 
-    kakao.maps.load(function() {
+      kakao.maps.load(function () {
         try {
-            initializeMap();
+          initializeMap();
         } catch (error) {
-            console.error(error);
-            setStatus("지도 초기화에 실패했습니다. Console 오류를 확인하세요.");
+          console.error("지도 초기화 오류:", error);
+          setStatus(
+            "지도 초기화에 실패했습니다.\n" +
+            "카카오 JavaScript 키와 도메인 등록을 확인해주세요."
+          );
         }
+      });
     });
-});
-</script>
+  </script>
 </body>
 </html>
